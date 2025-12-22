@@ -1,0 +1,23 @@
+# EntityApp/docker-compose.yml
+version: '3.8'
+
+services:
+  entityapp.api:
+    build:
+      context: .
+      dockerfile: src/EntityApp.Api/Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - mockexport.service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  mockexport.service:
+    build:
+      context: .
+      dockerfile: mocks/MockExportService/Dockerfile
+    ports:
+      - "8081:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development

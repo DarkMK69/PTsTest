@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "5OrV/Sn03v0bebbtaEuEswfEKALdNOZoMghKb9uYil4=",
+  "Source": "MockExportService",
+  "BasePath": "_content/MockExportService",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}
