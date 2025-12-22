@@ -1,0 +1,69 @@
+# .gitignore — для .NET / C# проектов
+
+# Папки сборки и выходные файлы
+bin/
+obj/
+artifacts/
+publish/
+
+# Файлы Visual Studio / VS Code
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# ReSharper
+_ReSharper.*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Rider
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# NuGet
+project.lock.json
+project.assets.json
+packages/
+
+# Coverage results
+coverage/
+*.coverage
+*.coveragexml
+
+# Test results
+TestResults/
+*.trx
+*.log
+
+# Docker
+docker-compose.override.yml
+
+# Secrets and local config
+appsettings.Development.json
+appsettings.Local.json
+secrets.json
+
+# User-specific files
+*.userprefs
+
+# Backup files
+*~
+*.bak
+*.tmp
+
+# Logs
+*.log
+
+# Web
+wwwroot/lib/
