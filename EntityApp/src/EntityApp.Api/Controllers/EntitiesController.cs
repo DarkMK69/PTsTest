@@ -13,9 +13,9 @@ public class EntitiesController(IEntityService service, ILogger<EntitiesControll
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
-        if (page < 1) page = 1;
-        if (pageSize < 1) pageSize = 10;
-        if (pageSize > 100) pageSize = 100;
+        if (page < 1) return BadRequest("Page must be at least 1");
+        if (pageSize < 1) return BadRequest("PageSize must be at least 1");
+        if (pageSize > 100) return BadRequest("PageSize cannot exceed 100");
 
         var result = await service.GetEntitiesAsync(page, pageSize);
         return Ok(result);
