@@ -1,0 +1,19 @@
+### Примеры использования Export API
+
+# Получить доступные форматы экспорта
+GET http://localhost:5000/api/export/formats
+
+# Экспортировать все сущности в JSON
+GET http://localhost:5000/api/export/entities?format=json
+
+# Экспортировать все сущности в CSV
+GET http://localhost:5000/api/export/entities?format=csv
+
+# Экспортировать все сущности в Excel
+GET http://localhost:5000/api/export/entities?format=excel
+
+# Экспортировать конкретную сущность в JSON
+GET http://localhost:5000/api/export/11111111-1111-1111-1111-111111111111?format=json
+
+# Экспортировать конкретную сущность в CSV
+GET http://localhost:5000/api/export/11111111-1111-1111-1111-111111111111?format=csv

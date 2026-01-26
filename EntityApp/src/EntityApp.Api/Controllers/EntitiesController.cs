@@ -6,7 +6,7 @@ namespace EntityApp.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class EntitiesController(IEntityService service, ILogger<EntitiesController> logger) : ControllerBase
+public class EntitiesController(IEntityService service, IExportService exportService, ILogger<EntitiesController> logger) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<PagedResult<EntityDto>>> Get(
@@ -50,22 +50,43 @@ public class EntitiesController(IEntityService service, ILogger<EntitiesControll
     }
 
     [HttpPost("export")]
-    public async Task<IActionResult> ExportAll()
+    public async Task<IActionResult> ExportAll([FromQuery] string format = "json")
     {
-        var entities = await service.GetAllEntitiesAsync();
-        using var httpClient = new HttpClient();
         try
         {
-            var json = System.Text.Json.JsonSerializer.Serialize(entities);
-            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+            if (!Enum.TryParse<ExportFormat>(format, ignoreCase: true, out var exportFormat))
+            {
+                return BadRequest(new { error = $"Неподдерживаемый формат: {format}. Доступные форматы: json, csv, excel" });
+            }
+
+            var entities = await service.GetAllEntitiesAsync();
+            
+            if (entities.Count == 0)
+            {
+                return BadRequest(new { error = "Нет сущностей для экспорта" });
+            }
+
+            var fileContent = await exportService.ExportEntitiesAsync(entities, exportFormat);
+
+            using var httpClient = new HttpClient();
+            using var content = new ByteArrayContent(fileContent);
+            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(exportService.GetMimeType(exportFormat));
+
             var response = await httpClient.PostAsync("http://localhost:5001/api/import", content);
             response.EnsureSuccessStatusCode();
-            return Ok("Exported successfully to mock service");
+
+            return Ok(new 
+            { 
+                message = "Экспортировано успешно на mock service",
+                format = format,
+                count = entities.Count,
+                mimeType = exportService.GetMimeType(exportFormat)
+            });
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Export failed");
-            return StatusCode(500, "Export failed");
+            logger.LogError(ex, "Ошибка при экспорте");
+            return StatusCode(500, new { error = "Ошибка при экспорте данных" });
         }
     }
 }
