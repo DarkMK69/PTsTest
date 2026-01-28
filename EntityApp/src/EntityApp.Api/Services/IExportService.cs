@@ -12,22 +12,21 @@ public enum ExportFormat
 public interface IExportService
 {
     /// <summary>
-    /// Экспортирует сущности в указанном формате
+    /// Экспортирует и отправляет сущности на mock service
     /// </summary>
-    Task<byte[]> ExportEntitiesAsync(List<EntityDto> entities, ExportFormat format);
-    
-    /// <summary>
-    /// Экспортирует одну сущность в указанном формате
-    /// </summary>
-    Task<byte[]> ExportEntityAsync(EntityDto entity, ExportFormat format);
-    
-    /// <summary>
-    /// Получает расширение файла для формата экспорта
-    /// </summary>
-    string GetFileExtension(ExportFormat format);
+    Task<ExportResult> ExportAndSendToMockServiceAsync(List<EntityDto> entities, ExportFormat format);
     
     /// <summary>
     /// Получает MIME-тип для формата экспорта
     /// </summary>
     string GetMimeType(ExportFormat format);
+}
+
+public class ExportResult
+{
+    public bool Success { get; set; }
+    public string Message { get; set; } = string.Empty;
+    public ExportFormat Format { get; set; }
+    public int Count { get; set; }
+    public string? Error { get; set; }
 }

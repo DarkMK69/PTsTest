@@ -9,6 +9,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IEntityService, EntityService>();
+builder.Services.AddScoped<IEntityFormatter, EntityFormatter>();
+builder.Services.AddScoped<IReportWebhookSender, ReportWebhookSender>();
 builder.Services.AddScoped<IExportService, ExportService>();
 var app = builder.Build();
 

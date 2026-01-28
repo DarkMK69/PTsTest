@@ -10,7 +10,7 @@ namespace EntityApp.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class EntitiesController(IEntityService service, IExportService exportService, ILogger<EntitiesController> logger) : ControllerBase
+public class EntitiesController(IEntityService service, IExportService exportService) : ControllerBase
 {
     /// <summary>
     /// Получает постраничный список всех сущностей.
@@ -99,43 +99,24 @@ public class EntitiesController(IEntityService service, IExportService exportSer
     /// <response code="400">Некорректный формат или нет данных для экспорта</response>
     /// <response code="500">Ошибка при экспорте или отправке на mock service</response>
     [HttpPost("export")]
-    public async Task<IActionResult> ExportAll([FromQuery] string format = "json")
+    public async Task<IActionResult> ExportAll([FromQuery] ExportFormat format = ExportFormat.Json)
     {
-        try
+        var entities = await service.GetAllEntitiesAsync();
+        var result = await exportService.ExportAndSendToMockServiceAsync(entities, format);
+
+        if (!result.Success)
         {
-            if (!Enum.TryParse<ExportFormat>(format, ignoreCase: true, out var exportFormat))
-            {
-                return BadRequest(new { error = $"Неподдерживаемый формат: {format}. Доступные форматы: json, csv, excel" });
-            }
-
-            var entities = await service.GetAllEntitiesAsync();
-            
-            if (entities.Count == 0)
-            {
-                return BadRequest(new { error = "Нет сущностей для экспорта" });
-            }
-
-            var fileContent = await exportService.ExportEntitiesAsync(entities, exportFormat);
-
-            using var httpClient = new HttpClient();
-            using var content = new ByteArrayContent(fileContent);
-            content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(exportService.GetMimeType(exportFormat));
-
-            var response = await httpClient.PostAsync("http://localhost:5001/api/import", content);
-            response.EnsureSuccessStatusCode();
-
-            return Ok(new 
-            { 
-                message = "Экспортировано успешно на mock service",
-                format = format,
-                count = entities.Count,
-                mimeType = exportService.GetMimeType(exportFormat)
-            });
+            return result.Error?.Contains("Нет сущностей") == true 
+                ? BadRequest(new { error = result.Error })
+                : StatusCode(500, new { error = result.Error });
         }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Ошибка при экспорте");
-            return StatusCode(500, new { error = "Ошибка при экспорте данных" });
-        }
+
+        return Ok(new 
+        { 
+            message = result.Message,
+            format = result.Format,
+            count = result.Count,
+            mimeType = exportService.GetMimeType(result.Format)
+        });
     }
 }
