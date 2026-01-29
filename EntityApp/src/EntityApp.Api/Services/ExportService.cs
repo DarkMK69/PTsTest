@@ -27,8 +27,9 @@ public class ExportService : IExportService
         return _formatter.GetMimeType(format);
     }
 
-    public async Task<ExportResult> ExportAndSendToMockServiceAsync(List<EntityDto> entities, ExportFormat format)
+    public async Task<ExportResult> ExportAndSendToMockServiceAsync( ExportFormat format)
     {
+        var entities = await _entityService.GetAllEntitiesAsync();
         if (!Enum.IsDefined(typeof(ExportFormat), format))
         {
             return new ExportResult

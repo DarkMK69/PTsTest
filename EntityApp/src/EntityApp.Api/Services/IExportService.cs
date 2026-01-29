@@ -14,7 +14,7 @@ public interface IExportService
     /// <summary>
     /// Экспортирует и отправляет сущности на mock service
     /// </summary>
-    Task<ExportResult> ExportAndSendToMockServiceAsync(List<EntityDto> entities, ExportFormat format);
+    Task<ExportResult> ExportAndSendToMockServiceAsync( ExportFormat format);
     
     /// <summary>
     /// Получает MIME-тип для формата экспорта

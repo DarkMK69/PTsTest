@@ -101,22 +101,8 @@ public class EntitiesController(IEntityService service, IExportService exportSer
     [HttpPost("export")]
     public async Task<IActionResult> ExportAll([FromQuery] ExportFormat format = ExportFormat.Json)
     {
-        var entities = await service.GetAllEntitiesAsync();
-        var result = await exportService.ExportAndSendToMockServiceAsync(entities, format);
-
-        if (!result.Success)
-        {
-            return result.Error?.Contains("Нет сущностей") == true 
-                ? BadRequest(new { error = result.Error })
-                : StatusCode(500, new { error = result.Error });
-        }
-
-        return Ok(new 
-        { 
-            message = result.Message,
-            format = result.Format,
-            count = result.Count,
-            mimeType = exportService.GetMimeType(result.Format)
-        });
+        await exportService.ExportAndSendToMockServiceAsync(format);
+        return Ok();
     }
+    
 }
