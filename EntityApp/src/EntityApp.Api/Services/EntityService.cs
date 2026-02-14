@@ -3,30 +3,18 @@ using EntityApp.Api.Models;
 
 namespace EntityApp.Api.Services;
 
-public interface IEntityService
-{
-    Task<PagedResult<EntityDto>> GetEntitiesAsync(int pageNumber, int pageSize);
-    Task<EntityDto?> GetEntityAsync(Guid id);
-    Task<EntityDto> CreateEntityAsync(CreateEntityDto dto);
-    Task<EntityDto?> UpdateEntityAsync(Guid id, UpdateEntityDto dto);
-    Task<bool> DeleteEntityAsync(Guid id);
-    Task<List<EntityDto>> GetAllEntitiesAsync();
-}
-
-public class PagedResult<T>
-{
-    public List<T> Items { get; set; } = [];
-    public int PageNumber { get; set; }
-    public int PageSize { get; set; }
-    public int TotalCount { get; set; }
-    public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
-}
-
+/// <summary>
+/// Сервис для управления сущностями.
+/// Реализует операции сохранения, извлечения и удаления сущностей в памяти.
+/// </summary>
 public class EntityService : IEntityService
 {
     private readonly List<Entity> _store = [];
     private readonly object _lock = new();
 
+    /// <summary>
+    /// Инициализирует новый экземпляр EntityService и загружает начальные данные.
+    /// </summary>
     public EntityService()
     {
         // Seed
@@ -41,12 +29,22 @@ public class EntityService : IEntityService
         });
     }
 
+    /// <summary>
+    /// Получает все сущности без пагинации.
+    /// </summary>
+    /// <returns>Список всех DTO сущностей</returns>
     public Task<List<EntityDto>> GetAllEntitiesAsync()
     {
         var dtos = _store.Select(MapToDto).ToList();
         return Task.FromResult(dtos);
     }
 
+    /// <summary>
+    /// Получает постраничный список сущностей.
+    /// </summary>
+    /// <param name="pageNumber">Номер страницы (начиная с 1)</param>
+    /// <param name="pageSize">Размер страницы</param>
+    /// <returns>Постраничный результат со списком DTO сущностей</returns>
     public Task<PagedResult<EntityDto>> GetEntitiesAsync(int pageNumber, int pageSize)
     {
         var totalCount = _store.Count;
@@ -65,12 +63,22 @@ public class EntityService : IEntityService
         });
     }
 
+    /// <summary>
+    /// Получает сущность по идентификатору.
+    /// </summary>
+    /// <param name="id">Уникальный идентификатор сущности</param>
+    /// <returns>DTO сущности или null, если не найдена</returns>
     public Task<EntityDto?> GetEntityAsync(Guid id)
     {
         var entity = _store.FirstOrDefault(e => e.Id == id);
         return Task.FromResult(entity == null ? null : MapToDto(entity));
     }
 
+    /// <summary>
+    /// Создает новую сущность.
+    /// </summary>
+    /// <param name="dto">DTO с данными для создания сущности</param>
+    /// <returns>DTO созданной сущности с присвоенным идентификатором</returns>
     public Task<EntityDto> CreateEntityAsync(CreateEntityDto dto)
     {
         var entity = new Entity
@@ -99,6 +107,12 @@ public class EntityService : IEntityService
         return Task.FromResult(MapToDto(entity));
     }
 
+    /// <summary>
+    /// Обновляет существующую сущность.
+    /// </summary>
+    /// <param name="id">Идентификатор сущности для обновления</param>
+    /// <param name="dto">DTO с новыми данными</param>
+    /// <returns>DTO обновленной сущности или null, если сущность не найдена</returns>
     public Task<EntityDto?> UpdateEntityAsync(Guid id, UpdateEntityDto dto)
     {
         var index = _store.FindIndex(e => e.Id == id);
@@ -128,6 +142,11 @@ public class EntityService : IEntityService
         return Task.FromResult<EntityDto?>(updated);
     }
 
+    /// <summary>
+    /// Удаляет сущность по идентификатору.
+    /// </summary>
+    /// <param name="id">Идентификатор сущности для удаления</param>
+    /// <returns>true, если сущность была удалена; false, если не найдена</returns>
     public Task<bool> DeleteEntityAsync(Guid id)
     {
         lock (_lock)
@@ -137,6 +156,11 @@ public class EntityService : IEntityService
         }
     }
 
+    /// <summary>
+    /// Преобразует сущность Entity в DTO.
+    /// </summary>
+    /// <param name="e">Сущность для преобразования</param>
+    /// <returns>DTO сущности</returns>
     private static EntityDto MapToDto(Entity e) => new(
         e.Id,
         e.Name,

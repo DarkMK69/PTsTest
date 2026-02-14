@@ -9,6 +9,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IEntityService, EntityService>();
+builder.Services.AddScoped<IEntityFormatter, EntityFormatter>();
+builder.Services.AddScoped<IReportWebhookSender, ReportWebhookSender>();
+builder.Services.AddScoped<IExportService, ExportService>();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -17,7 +20,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
